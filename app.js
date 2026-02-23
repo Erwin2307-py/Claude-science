@@ -6,7 +6,7 @@ class ClaudeScientificApp {
     constructor() {
         console.log('Novogenia Scientific Assistant initializing...');
         this.apiKey = localStorage.getItem('claude_api_key') || '';
-        this.model = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
+        this.model = this._migrateModel();
         this.language = localStorage.getItem('claude_language') || 'de';
         this.currentSkill = null;
         this.currentCategory = null;
@@ -2589,9 +2589,25 @@ class ClaudeScientificApp {
         this.showSuccess('Settings saved!');
     }
 
+    _migrateModel() {
+        const DEPRECATED = {
+            'claude-3-5-haiku-20241022': 'claude-haiku-4-5-20251001',
+            'claude-3-5-sonnet-20241022': 'claude-sonnet-4-5-20250929',
+            'claude-sonnet-4-20250514': 'claude-sonnet-4-5-20250929',
+            'claude-opus-4-5-20251101': 'claude-opus-4-6'
+        };
+        let model = localStorage.getItem('claude_model') || 'claude-sonnet-4-5-20250929';
+        if (DEPRECATED[model]) {
+            console.log(`Migrating deprecated model ${model} → ${DEPRECATED[model]}`);
+            model = DEPRECATED[model];
+            localStorage.setItem('claude_model', model);
+        }
+        return model;
+    }
+
     loadSettings() {
         this.apiKey = localStorage.getItem('claude_api_key') || '';
-        this.model = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
+        this.model = this._migrateModel();
         this.language = localStorage.getItem('claude_language') || 'de';
     }
 
@@ -4170,7 +4186,13 @@ Rate the paper's validity for pharmacogenomics research:
             });
 
             const data = await response.json();
-            const analysis = data.content[0].text;
+            if (data.error) {
+                throw new Error(data.error.message || data.error || 'API error');
+            }
+            const analysis = data.content?.[0]?.text || data.message || '';
+            if (!analysis) {
+                throw new Error('No analysis content received from API');
+            }
 
             // Display analysis with markdown formatting
             analysisDiv.innerHTML = `
