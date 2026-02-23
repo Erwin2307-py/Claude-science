@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Novogenia Scientific Assistant</title>
+    <script>
+        // Auto-Cache-Busting für CSS
+        document.write('<link rel="stylesheet" href="styles.css?v=' + new Date().getTime() + '">');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    <span>Novogenia</span>
+                </div>
+            </div>
+
+            <nav class="skill-categories" id="skill-categories">
+                <h3>Scientific Skills (133)</h3>
+                <!-- Skills are loaded dynamically from skills.js -->
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="settings-btn" class="settings-button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    Settings
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Scientific Assistant</h1>
+                    <span class="active-skill" id="active-skill-display">General Science</span>
+                </div>
+                <div class="header-right">
+                    <button id="paperqa-btn" class="paperqa-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <path d="M9 15l2 2 4-4"/>
+                        </svg>
+                        PaperQA
+                    </button>
+                    <button id="vcf-creator-btn" class="vcf-creator-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                            <path d="M12 6v6l4 2"/>
+                            <circle cx="12" cy="12" r="2"/>
+                        </svg>
+                        VCF Creator
+                    </button>
+                    <button id="vcf-library-btn" class="vcf-library-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <path d="M9 15h6"/>
+                            <path d="M9 11h6"/>
+                        </svg>
+                        VCF Raw <span class="vcf-count" id="vcf-count">0</span>
+                    </button>
+                    <button id="vcf-imputed-library-btn" class="vcf-library-button vcf-imputed">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <path d="M9 15h6"/>
+                            <path d="M12 11v6"/>
+                        </svg>
+                        VCF Imputed <span class="vcf-imputed-count" id="vcf-imputed-count">0</span>
+                    </button>
+                    <button id="paper-library-btn" class="paper-library-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <path d="M9 13h6"/>
+                            <path d="M9 17h6"/>
+                        </svg>
+                        Papers <span class="paper-count" id="paper-count">0</span>
+                    </button>
+                    <button id="sequence-library-btn" class="sequence-library-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Sequences <span class="sequence-count" id="sequence-count">0</span>
+                    </button>
+                    <button id="new-chat-btn" class="new-chat-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        New Chat
+                    </button>
+                </div>
+            </header>
+
+            <!-- Sequence Library Panel -->
+            <div class="sequence-library-panel" id="sequence-library-panel">
+                <div class="sequence-library-header">
+                    <h3>🧬 Sequence Library</h3>
+                    <button class="sequence-library-close" id="close-sequence-library">×</button>
+                </div>
+                <div class="sequence-library-content" id="sequence-library-content">
+                    <div class="sequence-library-empty">
+                        <p>No sequences saved</p>
+                        <small>Sequences from code outputs will be saved here</small>
+                    </div>
+                </div>
+                <div class="sequence-library-actions">
+                    <button id="clear-sequences-btn" class="clear-sequences-btn">Clear All</button>
+                </div>
+            </div>
+
+            <!-- Paper Library Panel -->
+            <div class="paper-library-panel" id="paper-library-panel">
+                <div class="paper-library-header">
+                    <h3>📚 Paper Library (Sci-Hub)</h3>
+                    <button class="paper-library-close" id="close-paper-library">×</button>
+                </div>
+                <div class="paper-library-content" id="paper-library-content">
+                    <div class="paper-library-empty">
+                        <p>No papers downloaded</p>
+                        <small>Downloaded papers from Sci-Hub will be saved here</small>
+                    </div>
+                </div>
+                <div class="paper-library-actions">
+                    <button id="clear-papers-btn" class="clear-papers-btn">Clear All</button>
+                </div>
+            </div>
+
+            <!-- VCF Library Panel -->
+            <div class="vcf-library-panel" id="vcf-library-panel">
+                <div class="vcf-library-header">
+                    <h3>💊 VCF Library</h3>
+                    <button class="vcf-library-close" id="close-vcf-library">×</button>
+                </div>
+                <div class="vcf-library-content" id="vcf-library-content">
+                    <div class="vcf-library-empty">
+                        <p>No VCF files saved</p>
+                        <small>VCF files from VCF Creator will be saved here</small>
+                    </div>
+                </div>
+                <div class="vcf-library-actions">
+                    <button id="clear-vcf-btn" class="clear-vcf-btn">Clear All</button>
+                </div>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container" id="chat-container">
+                <div class="skill-info-panel" id="skill-info-panel">
+                    <div class="skill-info-header">
+                        <span class="skill-info-icon">💡</span>
+                        <h3 id="skill-info-title">Skill Guide</h3>
+                        <button class="skill-info-close" id="close-skill-info">×</button>
+                    </div>
+                    <div class="skill-info-content">
+                        <p id="skill-info-description"></p>
+                        <div class="skill-info-examples">
+                            <strong>Example Prompts:</strong>
+                            <ul id="skill-info-examples-list"></ul>
+                        </div>
+                        <div class="skill-info-tip">
+                            <span>💬</span>
+                            <span>Write your query below and press Enter or click the Send button.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h2>Novogenia Scientific Assistant</h2>
+                    <p>Select a scientific skill from the sidebar or ask a general scientific question.</p>
+
+                    <div class="quick-actions">
+                        <button class="quick-action" data-prompt="Analyze this DNA sequence and identify possible genes">
+                            🧬 DNA Analysis
+                        </button>
+                        <button class="quick-action" data-prompt="Create a statistical analysis for my experimental data">
+                            📊 Statistical Analysis
+                        </button>
+                        <button class="quick-action" data-prompt="Help me with literature research on the topic">
+                            📚 Literature Research
+                        </button>
+                        <button class="quick-action" data-prompt="Analyze the molecular properties of this compound">
+                            ⚗️ Molecule Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages" id="messages"></div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea
+                            id="message-input"
+                            placeholder="Describe your scientific task..."
+                            rows="1"
+                        ></textarea>
+                        <div class="input-actions">
+                            <button id="attach-btn" class="attach-button" title="Attach file">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                                </svg>
+                            </button>
+                            <button id="send-btn" class="send-button" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="file" id="file-input" hidden multiple accept=".txt,.csv,.json,.fasta,.fa,.pdb,.sdf,.mol,.xlsx,.pdf">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" id="close-settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="api-key">Anthropic API Key</label>
+                    <input type="password" id="api-key" placeholder="sk-ant-...">
+                    <p class="setting-hint">Your API key is stored locally in your browser.</p>
+                </div>
+                <div class="setting-group">
+                    <label for="model-select">Model</label>
+                    <select id="model-select">
+                        <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                        <option value="claude-opus-4-5-20251101">Claude Opus 4.5</option>
+                        <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="language-select">Response Language</label>
+                    <select id="language-select">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Local AI Models (Contradiction Detection)</label>
+                    <div class="local-models-control">
+                        <button id="btn-start-local-models" class="secondary-button" onclick="window.app && window.app.toggleLocalModels()">Start Models</button>
+                        <span id="local-models-status" class="local-models-status offline">Offline</span>
+                    </div>
+                    <p class="setting-hint">Starts DeBERTa/RoBERTa Docker containers for automated contradiction detection in PaperQA results.</p>
+                </div>
+                <div class="setting-group">
+                    <label>Token Reduction Services</label>
+                    <p class="setting-hint">Start separately: <code>python summarizer_service.py</code> (Port 8020) and <code>python relevance_service.py</code> (Port 8021). Reduces PaperQA input tokens by ~60%.</p>
+                    <div class="local-models-control">
+                        <span id="summarizer-status" class="local-models-status offline">Summarizer: Offline</span>
+                        <span id="ranker-status" class="local-models-status offline">Ranker: Offline</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings" class="primary-button">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VCF Creator Panel (Fullscreen Overlay) -->
+    <div class="vcf-creator-panel" id="vcf-creator-panel">
+        <div class="vcf-creator-header">
+            <h3>💊 VCF Creator - IDAT to VCF</h3>
+            <button class="vcf-creator-close" id="close-vcf-creator">×</button>
+        </div>
+        <div class="vcf-creator-content">
+            <div class="vcf-creator-section">
+                <h4>🔧 Conversion Method</h4>
+                <div class="vcf-input-group">
+                    <label>Method:</label>
+                    <select id="vcf-method">
+                        <option value="cli">CLI (array-analysis-cli) - Recommended</option>
+                        <option value="dragena">DRAGENA</option>
+                        <option value="beeline">BeeLine</option>
+                    </select>
+                </div>
+                <p class="vcf-method-info" id="vcf-method-info">
+                    CLI: Fast conversion with Illumina array-analysis-cli
+                </p>
+            </div>
+
+            <div class="vcf-creator-section">
+                <h4>📁 Select IDAT Files</h4>
+                <div class="vcf-input-group">
+                    <label>IDAT Folder Path:</label>
+                    <input type="text" id="idat-folder-path" placeholder="C:\Path\to\IDAT\Files">
+                </div>
+                <div class="vcf-input-group">
+                    <label>SampleSheet.csv (optional):</label>
+                    <input type="file" id="samplesheet-input" accept=".csv">
+                </div>
+            </div>
+
+            <div class="vcf-creator-section">
+                <h4>⚙️ Configuration</h4>
+                <div class="vcf-input-group">
+                    <label>Reference Genome:</label>
+                    <select id="vcf-reference">
+                        <option value="GRCh38">GRCh38 / hg38</option>
+                        <option value="GRCh37">GRCh37 / hg19</option>
+                    </select>
+                </div>
+                <div class="vcf-input-group">
+                    <label>Output Directory:</label>
+                    <input type="text" id="vcf-output-dir" placeholder="C:\Path\to\Output">
+                </div>
+
+                <!-- Array Type Selection -->
+                <div class="vcf-input-group" style="background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <label style="color: white; font-weight: bold; font-size: 14px;">🧬 Array Type:</label>
+                    <select id="array-type-select" style="width: 100%; padding: 10px; border-radius: 6px; border: 2px solid white; font-size: 14px; margin-top: 8px; background: white; cursor: pointer;">
+                        <option value="novoscreen">NovoScreen01 (current)</option>
+                        <option value="gsa24v3">Global Screening Array-24+ v3.0 HTS</option>
+                        <option value="custom">Custom (manual paths)</option>
+                    </select>
+                    <small style="color: white; display: block; margin-top: 8px;">Select your BeadChip array type. Paths will be adjusted automatically.</small>
+                </div>
+
+                <div class="vcf-input-group">
+                    <label>Manifest (BPM):</label>
+                    <input type="text" id="manifest-path" value="C:\Users\ErwinSchimak\Desktop\idat\need\Manifest\NovoScreen01_20032937X376089_A2.bpm">
+                </div>
+                <div class="vcf-input-group">
+                    <label>Cluster File (EGT):</label>
+                    <input type="text" id="cluster-path" value="C:\Users\ErwinSchimak\Desktop\idat\need\clusterfile\Clusterfile_Final_V137.egt">
+                </div>
+                <div class="vcf-input-group">
+                    <label>CSV Manifest:</label>
+                    <input type="text" id="csv-manifest-path" value="C:\Users\ErwinSchimak\Desktop\idat\need\Manifest\NovoScreen01_20032937X376089_A2.bpm.csv">
+                </div>
+                <div class="vcf-input-group">
+                    <label>Genome FASTA (hg38.fa):</label>
+                    <input type="text" id="genome-fasta-path" value="C:\Users\ErwinSchimak\Desktop\idat\need\hg38\hg38.fa">
+                    <small style="color: #ff9800;">Required for GTC→VCF conversion</small>
+                </div>
+            </div>
+
+            <div class="vcf-creator-section">
+                <h4>📊 Beagle Imputation (Optional)</h4>
+                <div class="vcf-checkbox-group">
+                    <input type="checkbox" id="use-beagle-imputation">
+                    <label for="use-beagle-imputation">Perform Beagle Imputation</label>
+                </div>
+                <div class="vcf-checkbox-group">
+                    <input type="checkbox" id="use-docker" checked>
+                    <label for="use-docker">Use Docker Container (recommended)</label>
+                </div>
+                <div class="vcf-input-group beagle-options" style="display:none;">
+                    <label>Beagle JAR Path:</label>
+                    <input type="text" id="beagle-jar-path" value="C:\Users\ErwinSchimak\Desktop\idat\beagle5.jar">
+                </div>
+                <div class="vcf-input-group beagle-options" style="display:none;">
+                    <label>Reference Panel Path:</label>
+                    <input type="text" id="beagle-ref-path" placeholder="C:\Path\to\bref3_hg38">
+                </div>
+                <div class="vcf-input-group beagle-options" style="display:none;">
+                    <label>GP Filter Threshold:</label>
+                    <input type="number" id="beagle-gp-filter" value="0.9" step="0.05" min="0" max="1">
+                </div>
+            </div>
+
+            <div class="vcf-creator-section">
+                <h4>🧬 Chromosome Selection (for Beagle Imputation)</h4>
+                <div class="chromosome-selection">
+                    <div class="vcf-checkbox-group select-all-chrom">
+                        <input type="checkbox" id="select-all-chromosomes" checked>
+                        <label for="select-all-chromosomes"><strong>Select All Chromosomes</strong></label>
+                    </div>
+                    <div class="chromosome-grid" id="chromosome-grid">
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="1" checked><span>Chr 1</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="2" checked><span>Chr 2</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="3" checked><span>Chr 3</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="4" checked><span>Chr 4</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="5" checked><span>Chr 5</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="6" checked><span>Chr 6</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="7" checked><span>Chr 7</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="8" checked><span>Chr 8</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="9" checked><span>Chr 9</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="10" checked><span>Chr 10</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="11" checked><span>Chr 11</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="12" checked><span>Chr 12</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="13" checked><span>Chr 13</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="14" checked><span>Chr 14</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="15" checked><span>Chr 15</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="16" checked><span>Chr 16</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="17" checked><span>Chr 17</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="18" checked><span>Chr 18</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="19" checked><span>Chr 19</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="20" checked><span>Chr 20</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="21" checked><span>Chr 21</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="22" checked><span>Chr 22</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="X" checked><span>Chr X</span></label>
+                        <label class="chrom-checkbox"><input type="checkbox" name="chromosome" value="Y"><span>Chr Y</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vcf-creator-section">
+                <h4>💊 PharmCAT (Optional)</h4>
+                <div class="vcf-checkbox-group">
+                    <input type="checkbox" id="use-pharmcat">
+                    <label for="use-pharmcat">Perform PharmCAT Analysis</label>
+                </div>
+                <div class="vcf-input-group pharmcat-options" style="display:none;">
+                    <label>PharmCAT JAR Path:</label>
+                    <input type="text" id="pharmcat-jar-path" value="C:\Users\ErwinSchimak\Desktop\idat\pharmcat-3.0.0-all.jar">
+                </div>
+            </div>
+
+            <div class="vcf-creator-section">
+                <h4>📋 Found Samples</h4>
+                <div class="vcf-samples-list" id="vcf-samples-list">
+                    <p class="vcf-empty-message">No IDAT files selected</p>
+                </div>
+            </div>
+        </div>
+        <div class="vcf-creator-actions">
+            <button id="scan-idat-btn" class="vcf-action-btn secondary">🔍 Scan IDAT</button>
+            <button id="create-vcf-btn" class="vcf-action-btn primary">🧬 Create VCF</button>
+        </div>
+        <div class="vcf-creator-log" id="vcf-creator-log" style="display:none;">
+            <h4>📜 Log</h4>
+            <pre id="vcf-log-content"></pre>
+        </div>
+    </div>
+
+    <!-- PaperQA Panel (Fullscreen Overlay) - Simplified Version -->
+    <div class="paperqa-panel" id="paperqa-panel">
+        <!-- Header -->
+        <div class="paperqa-header">
+            <div class="paperqa-header-content">
+                <h2>📚 PaperQA - Scientific Literature Analysis</h2>
+                <p class="paperqa-subtitle">Choose your analysis mode</p>
+            </div>
+            <button class="paperqa-close" id="close-paperqa" title="Close">×</button>
+        </div>
+
+        <!-- MODE SELECTION SCREEN (Initial View) -->
+        <div class="paperqa-mode-selection" id="paperqa-mode-selection">
+            <div class="mode-selection-container">
+                <button class="mode-selection-btn" data-mode="snps-given">
+                    <div class="mode-btn-icon">🧬</div>
+                    <h3>SNPs Available</h3>
+                    <p>Analyze specific SNPs and find relevant papers</p>
+                </button>
+                <button class="mode-selection-btn" data-mode="search-snps">
+                    <div class="mode-btn-icon">🔍</div>
+                    <h3>Search SNPs in Gene</h3>
+                    <p>Enter a gene name (e.g., APOE) to find all SNPs in that gene</p>
+                </button>
+                <button class="mode-selection-btn" data-mode="discover-genes">
+                    <div class="mode-btn-icon">🔬</div>
+                    <h3>Discover Genes & SNPs</h3>
+                    <p>Enter a disease/trait to discover associated SNPs from GWAS studies</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- MODE-SPECIFIC PAGES (Hidden initially) -->
+
+        <!-- SNPs Available Page -->
+        <div class="paperqa-mode-page hidden" id="page-snps-given">
+            <div class="mode-page-header">
+                <button class="back-to-modes-btn" onclick="app.showModeSelection()">← Back to Mode Selection</button>
+                <h3>🧬 SNPs Available - Search & Analyze</h3>
+            </div>
+            <div class="mode-page-content">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label>Research Topic *</label>
+                        <input type="text" id="topic-snps-given" class="input-field" placeholder="e.g. Vitamin D metabolism, Caffeine metabolism...">
+                    </div>
+                    <div class="form-group">
+                        <label>SNPs (rs numbers) *</label>
+                        <textarea id="snps-snps-given" class="input-field" rows="4" placeholder="rs12345&#10;rs67890&#10;rs11111"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="scihub-snps-given" checked>
+                            Download & analyze full papers via Sci-Hub
+                        </label>
+                    </div>
+                    <button class="start-analysis-btn" onclick="app.startModeAnalysis('snps-given')">
+                        🚀 Start Analysis
+                    </button>
+                </div>
+                <div class="results-area" id="results-snps-given"></div>
+            </div>
+        </div>
+
+        <!-- Search SNPs Page -->
+        <div class="paperqa-mode-page hidden" id="page-search-snps">
+            <div class="mode-page-header">
+                <button class="back-to-modes-btn" onclick="app.showModeSelection()">← Back to Mode Selection</button>
+                <h3>🔍 Search SNPs in Gene - Find Variants in a Specific Gene</h3>
+            </div>
+            <div class="mode-page-content">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label>Gene Name *</label>
+                        <input type="text" id="topic-search-snps" class="input-field" placeholder="e.g. APOE, BRCA1, TP53, CYP2D6, MTHFR...">
+                        <small style="color: #666; font-size: 12px;">Enter a gene symbol to find all known SNPs in that gene</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="scihub-search-snps" checked>
+                            Download & analyze full papers via Sci-Hub
+                        </label>
+                    </div>
+                    <button class="start-analysis-btn" onclick="app.startModeAnalysis('search-snps')">
+                        🚀 Start Analysis
+                    </button>
+                </div>
+                <div class="results-area" id="results-search-snps"></div>
+            </div>
+        </div>
+
+        <!-- Discover Genes Page -->
+        <div class="paperqa-mode-page hidden" id="page-discover-genes">
+            <div class="mode-page-header">
+                <button class="back-to-modes-btn" onclick="app.showModeSelection()">← Back to Mode Selection</button>
+                <h3>🔬 Discover Genes & SNPs - Find Variants for a Disease/Trait</h3>
+            </div>
+            <div class="mode-page-content">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label>Disease / Phenotype / Trait *</label>
+                        <input type="text" id="topic-discover-genes" class="input-field" placeholder="e.g. Alzheimer disease, breast cancer, type 2 diabetes...">
+                        <small style="color: #666; font-size: 12px;">Enter a disease or trait to discover associated genes and SNPs from GWAS studies</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="scihub-discover-genes" checked>
+                            Download & analyze full papers via Sci-Hub
+                        </label>
+                    </div>
+                    <button class="start-analysis-btn" onclick="app.startModeAnalysis('discover-genes')">
+                        🚀 Start Analysis
+                    </button>
+                </div>
+                <div class="results-area" id="results-discover-genes"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Progress Overlay -->
+    <div class="progress-overlay" id="progress-overlay" style="display:none;">
+        <div class="progress-card">
+            <div class="progress-spinner"></div>
+            <h3 id="progress-title">Analysis in progress...</h3>
+            <p id="progress-message">Querying databases</p>
+            <div class="progress-log" id="paperqa-log">
+                <div id="paperqa-log-content"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Auto-Cache-Busting: Lädt Scripts immer mit aktuellem Timestamp
+    const timestamp = new Date().getTime();
+    document.write('<script src="skills.js?v=' + timestamp + '"><\/script>');
+    document.write('<script src="skill-ui.js?v=' + timestamp + '"><\/script>');
+    document.write('<script src="app.js?v=' + timestamp + '"><\/script>');
+</script>
+</body>
+</html>

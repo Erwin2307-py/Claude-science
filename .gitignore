@@ -1,0 +1,11 @@
+node_modules/
+__pycache__/
+temp_papers/
+paper_collections/
+*.log
+nul
+.claude/
+test_request.json
+test-endpoint.html
+test_scihub.ps1
+test_scihub_python.ps1

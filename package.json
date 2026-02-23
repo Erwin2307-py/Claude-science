@@ -1,0 +1,23 @@
+{
+  "name": "novogenia-scientific-assistant",
+  "version": "1.0.0",
+  "description": "Novogenia Scientific Assistant - Web interface with 139 scientific skills",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "claude",
+    "scientific",
+    "bioinformatics",
+    "cheminformatics",
+    "machine-learning",
+    "data-analysis"
+  ],
+  "author": "",
+  "license": "MIT",
+  "optionalDependencies": {
+    "puppeteer": "^22.15.0"
+  }
+}
