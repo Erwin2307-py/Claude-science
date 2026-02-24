@@ -29,7 +29,7 @@
             </div>
 
             <nav class="skill-categories" id="skill-categories">
-                <h3>Scientific Skills (133)</h3>
+                <h3>Scientific Skills</h3>
                 <!-- Skills are loaded dynamically from skills.js -->
             </nav>
 
@@ -506,7 +506,7 @@
         <!-- SNPs Available Page -->
         <div class="paperqa-mode-page hidden" id="page-snps-given">
             <div class="mode-page-header">
-                <button class="back-to-modes-btn" onclick="app.showModeSelection()">← Back to Mode Selection</button>
+                <button class="back-to-modes-btn" onclick="window.app && app.showModeSelection()">← Back to Mode Selection</button>
                 <h3>🧬 SNPs Available - Search & Analyze</h3>
             </div>
             <div class="mode-page-content">
@@ -525,7 +525,7 @@
                             Download & analyze full papers via Sci-Hub
                         </label>
                     </div>
-                    <button class="start-analysis-btn" onclick="app.startModeAnalysis('snps-given')">
+                    <button class="start-analysis-btn" onclick="window.app && app.startModeAnalysis('snps-given')">
                         🚀 Start Analysis
                     </button>
                 </div>
@@ -536,7 +536,7 @@
         <!-- Search SNPs Page -->
         <div class="paperqa-mode-page hidden" id="page-search-snps">
             <div class="mode-page-header">
-                <button class="back-to-modes-btn" onclick="app.showModeSelection()">← Back to Mode Selection</button>
+                <button class="back-to-modes-btn" onclick="window.app && app.showModeSelection()">← Back to Mode Selection</button>
                 <h3>🔍 Search SNPs in Gene - Find Variants in a Specific Gene</h3>
             </div>
             <div class="mode-page-content">
@@ -552,7 +552,7 @@
                             Download & analyze full papers via Sci-Hub
                         </label>
                     </div>
-                    <button class="start-analysis-btn" onclick="app.startModeAnalysis('search-snps')">
+                    <button class="start-analysis-btn" onclick="window.app && app.startModeAnalysis('search-snps')">
                         🚀 Start Analysis
                     </button>
                 </div>
@@ -563,7 +563,7 @@
         <!-- Discover Genes Page -->
         <div class="paperqa-mode-page hidden" id="page-discover-genes">
             <div class="mode-page-header">
-                <button class="back-to-modes-btn" onclick="app.showModeSelection()">← Back to Mode Selection</button>
+                <button class="back-to-modes-btn" onclick="window.app && app.showModeSelection()">← Back to Mode Selection</button>
                 <h3>🔬 Discover Genes & SNPs - Find Variants for a Disease/Trait</h3>
             </div>
             <div class="mode-page-content">
@@ -579,7 +579,7 @@
                             Download & analyze full papers via Sci-Hub
                         </label>
                     </div>
-                    <button class="start-analysis-btn" onclick="app.startModeAnalysis('discover-genes')">
+                    <button class="start-analysis-btn" onclick="window.app && app.startModeAnalysis('discover-genes')">
                         🚀 Start Analysis
                     </button>
                 </div>
@@ -600,8 +600,6 @@
             </div>
         </div>
     </div>
-
-</div>
 
 <script>
     // Auto-Cache-Busting: Lädt Scripts immer mit aktuellem Timestamp

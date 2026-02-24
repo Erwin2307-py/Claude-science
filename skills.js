@@ -1705,7 +1705,7 @@ Interpretiere PGx-Ergebnisse und gib klinische Empfehlungen.`,
 
 // System prompts for different modes
 const SYSTEM_PROMPTS = {
-    general: `Du bist der Novogenia Scientific Assistant - ein wissenschaftlicher Assistent mit 133 spezialisierten Skills in 14 Kategorien.
+    general: `Du bist der Novogenia Scientific Assistant - ein wissenschaftlicher Assistent mit 149 spezialisierten Skills in 16 Kategorien.
 Du hilfst bei Bioinformatik, Cheminformatik, klinischer Forschung, Machine Learning, Datenanalyse, wissenschaftlichen Datenbanken und mehr.
 
 ⚠️ KRITISCH - CODE-FORMATIERUNG:

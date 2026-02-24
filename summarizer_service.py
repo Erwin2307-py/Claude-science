@@ -44,6 +44,9 @@ class SummarizerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/summarize':
             content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 10 * 1024 * 1024:  # 10 MB limit
+                self._send_json(413, {"error": "Request body too large"})
+                return
             body = self.rfile.read(content_length)
             try:
                 data = json.loads(body)
@@ -101,7 +104,7 @@ class SummarizerHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode())
 
     def log_message(self, format, *args):
-        print(f"[Summarizer] {args[0]}")
+        print(f"[Summarizer] {format % args}" if args else f"[Summarizer] {format}")
 
 if __name__ == '__main__':
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8020

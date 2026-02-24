@@ -44,6 +44,9 @@ class RankerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/rank':
             content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 10 * 1024 * 1024:  # 10 MB limit
+                self._send_json(413, {"error": "Request body too large"})
+                return
             body = self.rfile.read(content_length)
             try:
                 data = json.loads(body)
@@ -53,6 +56,10 @@ class RankerHandler(BaseHTTPRequestHandler):
                 if not query or not documents:
                     self._send_json(400, {"error": "query and documents required"})
                     return
+
+                # Limit documents to prevent memory exhaustion
+                documents = documents[:500]
+                documents = [doc[:2000] for doc in documents]
 
                 ranker = get_ranker()
 
@@ -96,7 +103,7 @@ class RankerHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode())
 
     def log_message(self, format, *args):
-        print(f"[Ranker] {args[0]}")
+        print(f"[Ranker] {format % args}" if args else f"[Ranker] {format}")
 
 if __name__ == '__main__':
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8021

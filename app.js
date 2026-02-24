@@ -868,8 +868,14 @@ class ClaudeScientificApp {
         const content = this.messageInput.value.trim();
         if (!content || this.isLoading) return;
 
+        // Prevent double-submit immediately
+        this.isLoading = true;
+        this.sendBtn.disabled = true;
+
         // Check API key
         if (!this.apiKey) {
+            this.isLoading = false;
+            this.sendBtn.disabled = false;
             this.showError('Please enter API key in settings.');
             this.openSettings();
             return;
@@ -887,15 +893,12 @@ class ClaudeScientificApp {
         // Add to conversation history
         this.messages.push({ role: 'user', content: content });
 
-        // Show loading state
-        this.isLoading = true;
-        this.sendBtn.disabled = true;
-
         try {
             // Streaming response handles message display
             const response = await this.callClaudeAPI(content);
             this.messages.push({ role: 'assistant', content: response });
         } catch (error) {
+            this.messages.pop(); // Remove failed user message to prevent conversation state corruption
             this.showError(`Error: ${error.message}`);
         } finally {
             this.isLoading = false;
@@ -1019,7 +1022,8 @@ class ClaudeScientificApp {
                                 throw new Error(parsed.error?.message || 'Stream error');
                             }
                         } catch (e) {
-                            // Skip non-JSON lines
+                            if (e instanceof SyntaxError) continue; // Skip non-JSON lines
+                            throw e;
                         }
                     }
                 }
@@ -1372,7 +1376,7 @@ class ClaudeScientificApp {
 
                 // Bind copy button
                 outputActions.querySelector('.copy-output').onclick = () => {
-                    navigator.clipboard.writeText(output);
+                    navigator.clipboard.writeText(output).catch(() => {});
                     const btn = outputActions.querySelector('.copy-output');
                     btn.textContent = '✅ Copied!';
                     setTimeout(() => { btn.innerHTML = '📋 Copy'; }, 2000);
@@ -1460,13 +1464,13 @@ class ClaudeScientificApp {
             const tabs = seqDiv.querySelectorAll('.seq-tab');
 
             copyRawBtn.onclick = () => {
-                navigator.clipboard.writeText(seq.sequence);
+                navigator.clipboard.writeText(seq.sequence).catch(() => {});
                 copyRawBtn.textContent = '✅ Copied!';
                 setTimeout(() => { copyRawBtn.innerHTML = '📋 Copy Sequence'; }, 2000);
             };
 
             copyFastaBtn.onclick = () => {
-                navigator.clipboard.writeText(fastaContent);
+                navigator.clipboard.writeText(fastaContent).catch(() => {});
                 copyFastaBtn.textContent = '✅ Copied!';
                 setTimeout(() => { copyFastaBtn.innerHTML = '📄 Copy FASTA'; }, 2000);
             };
@@ -1656,7 +1660,7 @@ class ClaudeScientificApp {
     copySequence(id) {
         const seq = this.sequenceLibrary.find(s => s.id === id);
         if (seq) {
-            navigator.clipboard.writeText(seq.sequence);
+            navigator.clipboard.writeText(seq.sequence).catch(() => {});
             this.showSuccess('Complete sequence copied!');
         }
     }
@@ -1665,7 +1669,7 @@ class ClaudeScientificApp {
         const seq = this.sequenceLibrary.find(s => s.id === id);
         if (seq) {
             // Format sequence with line breaks every 70 chars (standard FASTA)
-            const formattedSeq = seq.sequence.match(/.{1,70}/g).join('\n');
+            const formattedSeq = (seq.sequence.match(/.{1,70}/g) || []).join('\n');
             const fasta = `>${seq.name}\n${formattedSeq}`;
 
             const blob = new Blob([fasta], { type: 'text/plain' });
@@ -2128,9 +2132,9 @@ class ClaudeScientificApp {
             if (this.csvManifestPath) this.csvManifestPath.value = config.csv;
 
             // Visual feedback
-            this.showToast(`📊 Array paths updated for ${arrayType === 'novoscreen' ? 'NovoScreen01' : 'Global Screening Array-24+ v3.0 HTS'}`, 'success');
+            this.showSuccess(`📊 Array paths updated for ${arrayType === 'novoscreen' ? 'NovoScreen01' : 'Global Screening Array-24+ v3.0 HTS'}`);
         } else if (arrayType === 'custom') {
-            this.showToast('✏️ Custom mode: Adjust paths manually', 'info');
+            this.showInfo('✏️ Custom mode: Adjust paths manually');
         }
     }
 
@@ -4227,7 +4231,7 @@ Rate the paper's validity for pharmacogenomics research:
         const text = analysisDiv.innerText;
         navigator.clipboard.writeText(text).then(() => {
             this.showSuccess('Analysis copied to clipboard!');
-        });
+        }).catch(() => {});
     }
 
     downloadAnalysis(paperId, snp) {
@@ -4252,7 +4256,7 @@ Rate the paper's validity for pharmacogenomics research:
         const text = paperCard.innerText;
         navigator.clipboard.writeText(text).then(() => {
             this.showSuccess('Paper info copied to clipboard!');
-        });
+        }).catch(() => {});
     }
 
     downloadPaperInfo(paperId) {
@@ -4276,7 +4280,7 @@ Rate the paper's validity for pharmacogenomics research:
         const text = resultsArea.innerText;
         navigator.clipboard.writeText(text).then(() => {
             this.showSuccess('All results copied to clipboard!');
-        });
+        }).catch(() => {});
     }
 
     downloadAllResults(mode) {
@@ -6248,7 +6252,7 @@ else:
 
             if (result.success) {
                 // Display extracted text in chat
-                this.addMessageToChat('assistant', `**Extracted text from: ${paper.title}**\n\n${result.output}`);
+                this.addMessage('assistant', `**Extracted text from: ${paper.title}**\n\n${result.output}`);
                 this.showSuccess('Text extracted successfully!');
             } else {
                 this.showError(`Text extraction failed: ${result.error}`);

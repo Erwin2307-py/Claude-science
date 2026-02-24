@@ -60,6 +60,25 @@ function isValidPdf(buffer) {
     return buffer && buffer.length > 100 && buffer.slice(0, 5).toString() === '%PDF-';
 }
 
+// Helper: Collect request body with size limit (default 10MB)
+function collectRequestBody(req, maxSize = 10 * 1024 * 1024) {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        let size = 0;
+        req.on('data', chunk => {
+            size += chunk.length;
+            if (size > maxSize) {
+                req.destroy();
+                reject(new Error('Request body too large'));
+                return;
+            }
+            body += chunk.toString();
+        });
+        req.on('end', () => resolve(body));
+        req.on('error', reject);
+    });
+}
+
 // ============================================================
 // Local ML Model Docker Management
 // ============================================================
@@ -215,7 +234,7 @@ const MIME_TYPES = {
 
 const server = http.createServer(async (req, res) => {
     // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key, anthropic-version');
 
@@ -293,8 +312,12 @@ const server = http.createServer(async (req, res) => {
 
                 proxyReq.on('error', (error) => {
                     console.error('Proxy error:', error);
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: { message: error.message } }));
+                    if (!res.headersSent) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: { message: error.message } }));
+                    } else {
+                        res.end();
+                    }
                 });
 
                 proxyReq.write(JSON.stringify(claudeRequest));
@@ -2230,8 +2253,15 @@ print(json.dumps({"papers": papers, "total": len(papers)}))
 
                 // Create collection folder name: GENE_rsID
                 const collectionName = `${gene || 'Unknown'}_${rsid || 'Unknown'}`;
-                const papersDir = path.join(__dirname, 'paper_collections');
-                const collectionPath = path.join(papersDir, collectionName);
+                const papersDir = path.resolve(path.join(__dirname, 'paper_collections'));
+                const collectionPath = path.resolve(path.join(papersDir, collectionName));
+
+                // Prevent path traversal
+                if (!collectionPath.startsWith(papersDir)) {
+                    res.writeHead(403, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: 'Invalid collection path' }));
+                    return;
+                }
 
                 // Create collection directory
                 if (!fs.existsSync(collectionPath)) {
@@ -2300,17 +2330,19 @@ print(json.dumps({"papers": papers, "total": len(papers)}))
         req.on('end', () => {
             try {
                 const { collectionId } = JSON.parse(body);
-                const papersDir = path.join(__dirname, 'paper_collections');
-                const collectionPath = path.join(papersDir, collectionId);
+                const papersDir = path.resolve(path.join(__dirname, 'paper_collections'));
+                const collectionPath = path.resolve(path.join(papersDir, collectionId));
+
+                // Prevent path traversal
+                if (!collectionPath.startsWith(papersDir)) {
+                    res.writeHead(403, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: 'Invalid collection path' }));
+                    return;
+                }
 
                 if (fs.existsSync(collectionPath)) {
-                    // Open folder in Windows Explorer
-                    const { exec } = require('child_process');
-                    exec(`explorer "${collectionPath}"`, (error) => {
-                        if (error) {
-                            console.error('Failed to open folder:', error);
-                        }
-                    });
+                    // Open folder in Windows Explorer (using spawn to prevent command injection)
+                    spawn('explorer', [collectionPath]);
 
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ success: true }));
@@ -2335,8 +2367,15 @@ print(json.dumps({"papers": papers, "total": len(papers)}))
         req.on('end', () => {
             try {
                 const { collectionId } = JSON.parse(body);
-                const papersDir = path.join(__dirname, 'paper_collections');
-                const collectionPath = path.join(papersDir, collectionId);
+                const papersDir = path.resolve(path.join(__dirname, 'paper_collections'));
+                const collectionPath = path.resolve(path.join(papersDir, collectionId));
+
+                // Prevent path traversal
+                if (!collectionPath.startsWith(papersDir)) {
+                    res.writeHead(403, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: 'Invalid collection path' }));
+                    return;
+                }
 
                 if (fs.existsSync(collectionPath)) {
                     // Delete all files in collection
@@ -3954,10 +3993,18 @@ print(json.dumps({
                     });
                 });
                 proxyReq.on('error', (err) => {
-                    res.writeHead(503, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Summarizer service not available: ' + err.message }));
+                    if (!res.headersSent) {
+                        res.writeHead(503, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Summarizer service not available: ' + err.message }));
+                    }
                 });
-                proxyReq.on('timeout', () => { proxyReq.destroy(); });
+                proxyReq.on('timeout', () => {
+                    proxyReq.destroy();
+                    if (!res.headersSent) {
+                        res.writeHead(504, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Summarizer service timed out' }));
+                    }
+                });
                 proxyReq.write(postData);
                 proxyReq.end();
             } catch (error) {
@@ -3991,10 +4038,18 @@ print(json.dumps({
                     });
                 });
                 proxyReq.on('error', (err) => {
-                    res.writeHead(503, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Ranker service not available: ' + err.message }));
+                    if (!res.headersSent) {
+                        res.writeHead(503, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Ranker service not available: ' + err.message }));
+                    }
                 });
-                proxyReq.on('timeout', () => { proxyReq.destroy(); });
+                proxyReq.on('timeout', () => {
+                    proxyReq.destroy();
+                    if (!res.headersSent) {
+                        res.writeHead(504, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Ranker service timed out' }));
+                    }
+                });
                 proxyReq.write(postData);
                 proxyReq.end();
             } catch (error) {
@@ -4016,7 +4071,14 @@ print(json.dumps({
     // Remove query parameters for cache busting
     let urlPath = req.url.split('?')[0];
     let filePath = urlPath === '/' ? '/index.html' : urlPath;
-    filePath = path.join(__dirname, filePath);
+    filePath = path.resolve(path.join(__dirname, filePath));
+
+    // Prevent path traversal - resolved path must be within __dirname
+    if (!filePath.startsWith(path.resolve(__dirname))) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
+    }
 
     const ext = path.extname(filePath);
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
